@@ -1,0 +1,20 @@
+# docker-compose.dev.yml — ag-pruebas-ag (desarrollo local con Docker)
+# Uso: docker compose -f docker-compose.dev.yml up -d
+#
+# Lee las variables directamente del .env local.
+# Para desarrollo sin Docker usa: npm run start:dev
+
+services:
+  ag-pruebas-ag:
+    build: .
+    ports:
+      - "${PORT:-10401}:${PORT:-10401}"
+      - "${SSL_PORT:-20401}:${SSL_PORT:-20401}"
+    env_file: .env
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ${CERT_PATH:-/proyectos/certs}:${CERT_PATH:-/proyectos/certs}:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

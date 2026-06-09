@@ -1,17 +1,25 @@
-# docker-compose.yml — ag-pruebas-ag
-# Uso: docker compose up -d  |  docker compose down  |  docker compose build
+# docker-compose.yml — ag-pruebas-ag (producción)
+# Uso: docker compose down && docker compose build && docker compose up -d
+#
+# En el servidor solo necesitas un .env con una línea:
+#   VAULT_TOKEN=hvs.xxxx
+# El entrypoint.sh carga el resto desde Vault al arrancar.
 
 services:
   ag-pruebas-ag:
     build: .
     ports:
-      - "${PORT:-10401}:${PORT:-10401}"
-      - "${SSL_PORT:-20401}:${SSL_PORT:-20401}"
-    env_file: .env
+      - "10401:10401"
+      - "20401:20401"
+    env_file:
+      - .env.docker
     environment:
       NODE_ENV: production
+      PORT: "10401"
+      VAULT_ADDR: "http://host.docker.internal:8200"
+      VAULT_SECRET_PATH: "hce/nestjs/api-gateway"
     volumes:
-      - ${CERT_PATH:-/proyectos/certs}:${CERT_PATH:-/proyectos/certs}:ro
+      - /proyectos/certs:/proyectos/certs:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

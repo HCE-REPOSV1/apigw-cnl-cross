@@ -3,4 +3,12 @@ dist/
 .env
 .env.local
 build/
-coverage/
+coverage/.env.docker
+
+# Claude Code
+.claude/
+CLAUDE.md
+
+.env.docker
+.env
+.env.*

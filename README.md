@@ -59,11 +59,60 @@ Proxy inverso con rate limiting, CORS, SSL opcional y validación JWT local (sin
 El gateway rechaza con `400` cualquier URL que contenga `..` o `%2e%2e`
 antes de hacer el proxy al servicio upstream.
 
-## Instalación
+## Cómo ejecutar
+
+### Local sin Docker
 
 ```bash
 npm install
-cp .env.example .env
-# Completar AUTH_URL y AUTH_SERVICE_URL con la URL del aa-pruebas-auth
+# Copiar .env.example a .env y completar los valores
 npm run start:dev
+```
+
+El gateway queda disponible en `http://localhost:10401`.
+
+### Local con Docker
+
+Usa `docker-compose.dev.yml`, que lee el `.env` local:
+
+```bash
+docker compose -f docker-compose.dev.yml build
+docker compose -f docker-compose.dev.yml up -d
+
+# O build + up en un solo comando:
+docker compose -f docker-compose.dev.yml up -d --build
+
+# Para bajar:
+docker compose -f docker-compose.dev.yml down
+```
+
+### Producción
+
+El `docker-compose.yml` lee los secretos desde Vault al arrancar. No se necesita `.env` en el servidor.
+
+**Requisito:** Vault corriendo en `192.168.42.44:8200` (ver [HCE-vault-config](../HCE-vault-config/README.md)).
+
+```bash
+# El token está en HCE-vault-config/.env como TOKEN_API_GATEWAY
+export VAULT_TOKEN=hvs.xxxx
+
+docker compose down
+docker compose build
+docker compose up -d
+```
+
+Al arrancar, `entrypoint.sh` obtiene `JWT_SECRET`, `AUTH_URL`, `KAFKA_BROKER` y el resto de Vault e inyecta como variables de entorno. El app no sabe que existe Vault.
+
+Con GitHub Actions el token se pasa como variable de entorno desde GitHub Secrets (`TOKEN_API_GATEWAY`).
+
+---
+
+## Scripts disponibles
+
+```bash
+npm run start:dev   # desarrollo con hot-reload
+npm run build       # compilar TypeScript
+npm run start:prod  # ejecutar build
+npm run test        # tests unitarios
+npm run test:cov    # cobertura
 ```
