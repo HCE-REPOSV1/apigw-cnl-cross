@@ -1,5 +1,5 @@
 {
-  "name": "gw-pruebas-ag",
+  "name": "apigw-cnl-cross",
   "version": "1.0.0",
   "scripts": {
     "build":      "nest build",

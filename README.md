@@ -1,6 +1,6 @@
-# ag-pruebas-ag
+# apigw-cnl-cross
 
-> API Gateway generado por **Jarvis Platform** — 2/4/2026
+> API Gateway generado por **Jarvis Platform** — 10/6/2026
 
 Proxy inverso con rate limiting, CORS, SSL opcional y validación JWT local (sin llamada HTTP al Auth Service).
 
@@ -8,7 +8,7 @@ Proxy inverso con rate limiting, CORS, SSL opcional y validación JWT local (sin
 
 | Ruta | Variable env | Descripción |
 |------|-------------|-------------|
-| `/auth/*` | `AUTH_URL` | Redirige al Auth Service (`aa-pruebas-auth`) |
+| `/auth/*` | `AUTH_URL` | Redirige al Auth Service (`ms-cnl-cross-auth-profile`) |
 
 ## Endpoints propios
 
@@ -21,7 +21,7 @@ Proxy inverso con rate limiting, CORS, SSL opcional y validación JWT local (sin
 
 | Variable | Requerida | Default | Descripción |
 |----------|:---------:|---------|-------------|
-| `PORT` | — | `10401` | Puerto HTTP |
+| `PORT` | — | `10601` | Puerto HTTP |
 | `NODE_ENV` | — | `development` | Entorno (`development` / `production`) |
 | `ALLOWED_ORIGINS` | — | — | Orígenes CORS permitidos (coma-separados). En `development` se acepta cualquier origen |
 | `RATE_LIMIT_TTL` | — | `60` | Ventana de rate limiting en segundos |
@@ -30,7 +30,7 @@ Proxy inverso con rate limiting, CORS, SSL opcional y validación JWT local (sin
 | `JWT_SECRET` | ✓ | — | Mismo valor que `JWT_SECRET` del Auth Service — el gateway valida el token **localmente** con `jsonwebtoken` sin llamar al Auth Service |
 | `AUTH_URL` | ✓ | — | URL base del Auth Service — usada para **proxy** de rutas `/auth/*` |
 | `USE_SSL` | — | `false` | `true` activa el servidor HTTPS adicional |
-| `SSL_PORT` | — | `20401` | Puerto HTTPS (solo si `USE_SSL=true`) |
+| `SSL_PORT` | — | `20601` | Puerto HTTPS (solo si `USE_SSL=true`) |
 | `CERT_PATH` | — | `/app/certs` | Ruta a los certificados SSL (`server.crt` + `server.key` o `server.pfx`) |
 | `SERVER_NAME` | — | — | Nombre del servidor para certificados PFX con múltiples entradas |
 | `KAFKA_BROKER` | — | `localhost:9092` | Broker(s) Kafka (coma-separados) |
@@ -69,7 +69,7 @@ npm install
 npm run start:dev
 ```
 
-El gateway queda disponible en `http://localhost:10401`.
+El gateway queda disponible en `http://localhost:10601`.
 
 ### Local con Docker
 

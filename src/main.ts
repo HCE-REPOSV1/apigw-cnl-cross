@@ -1,5 +1,5 @@
 import { NestFactory }    from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { AppModule }      from './app.module';
 import { json, urlencoded } from 'express';
 import * as http   from 'http';
@@ -17,6 +17,11 @@ async function bootstrap() {
   app.use(urlencoded({ extended: true, limit: '10mb' }));
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
 
+  // api/v{n}/<servicio>/... — cada ruta de negocio versiona independiente del MS downstream.
+  // health y '/' quedan fuera del prefijo/versión para no romper los healthcheck de Docker.
+  app.setGlobalPrefix('api', { exclude: ['health', '/'] });
+  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1', prefix: 'v' });
+
   const origins = process.env.ALLOWED_ORIGINS;
   app.enableCors({
     origin:         process.env.NODE_ENV === 'development' ? true : (origins ? origins.split(',') : false),
@@ -29,18 +34,18 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance();
 
   // ── HTTP siempre activo ──
-  const port = Number(process.env.PORT ?? 10401);
+  const port = Number(process.env.PORT ?? 10601);
   http.createServer(expressApp).listen(port, () => {
-    console.log(`🚀 gw-pruebas-ag  HTTP  → http://localhost:${port}`);
+    console.log(`🚀 apigw-cnl-cross  HTTP  → http://localhost:${port}`);
   });
 
   // ── HTTPS si USE_SSL=true y hay certificados ──
   const httpsOptions = buildHttpsOptions();
   if (httpsOptions) {
-    const sslPort = Number(process.env.SSL_PORT ?? 20401);
+    const sslPort = Number(process.env.SSL_PORT ?? 20601);
     try {
       https.createServer(httpsOptions, expressApp).listen(sslPort, () => {
-        console.log(`🔒 gw-pruebas-ag  HTTPS → https://localhost:${sslPort}`);
+        console.log(`🔒 apigw-cnl-cross  HTTPS → https://localhost:${sslPort}`);
       });
     } catch (e: any) {
       console.error('❌ Error al iniciar HTTPS:', e.message, '— solo HTTP activo');

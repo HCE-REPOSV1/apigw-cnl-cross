@@ -13,9 +13,10 @@ export class GatewayService {
     private readonly cfg:  ConfigService,
   ) {
     this.svcMap = {
-      '/auth':          this.cfg.get('AUTH_URL',          'http://localhost:10402'),
-      '/practitioners': this.cfg.get('PRACTITIONER_URL',  'http://localhost:3000'),
-      '/files':         this.cfg.get('MEDIA_URL',         'http://localhost:3001'),
+      '/auth':     this.cfg.get('AUTH_URL',     'http://localhost:10701'),
+      '/audit':    this.cfg.get('CNL_AUDIT_URL',    'http://localhost:10703'),
+      '/catalogs': this.cfg.get('CNL_CATALOGS_URL', 'http://localhost:10704'),
+      '/media':    this.cfg.get('CNL_MEDIA_URL',    'http://localhost:10702'),
     };
   }
 

@@ -1,4 +1,4 @@
-import { Controller, All, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, All, Get, Req, Res, UseGuards, Version, VERSION_NEUTRAL } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -19,25 +19,33 @@ export class GatewayController {
     return this.gatewayService.proxyRequest(req, res, 'auth');
   }
 
-  // Rutas protegidas
-  @All('practitioners/*')
+  // Rutas protegidas — MS Canal cross-cutting (ms-cnl-cross-*)
+  @All('audit/*')
   @UseGuards(JwtAuthGuard)
-  async proxyPractitioners(@Req() req: Request, @Res() res: Response) {
-    return this.gatewayService.proxyRequest(req, res, 'practitioners');
+  async proxyAudit(@Req() req: Request, @Res() res: Response) {
+    return this.gatewayService.proxyRequest(req, res, 'audit');
   }
 
-  @All('files/*')
+  @All('catalogs/*')
   @UseGuards(JwtAuthGuard)
-  async proxyFiles(@Req() req: Request, @Res() res: Response) {
-    return this.gatewayService.proxyBinaryRequest(req, res, 'files');
+  async proxyCatalogs(@Req() req: Request, @Res() res: Response) {
+    return this.gatewayService.proxyRequest(req, res, 'catalogs');
   }
 
+  @All('media/*')
+  @UseGuards(JwtAuthGuard)
+  async proxyMedia(@Req() req: Request, @Res() res: Response) {
+    return this.gatewayService.proxyBinaryRequest(req, res, 'media');
+  }
+
+  @Version(VERSION_NEUTRAL)
   @Get('health')
   async health() {
     return this.gatewayService.healthCheck();
   }
 
   // S3: en producción no exponer la estructura interna del gateway
+  @Version(VERSION_NEUTRAL)
   @Get()
   info() {
     if (this.config.get('NODE_ENV') === 'production') {
@@ -47,7 +55,7 @@ export class GatewayController {
       service:   'gw-pruebas-ag',
       type:      'API Gateway',
       timestamp: new Date().toISOString(),
-      routes:    ['/auth', '/practitioners', '/files'],
+      routes:    ['/api/v1/auth', '/api/v1/audit', '/api/v1/catalogs', '/api/v1/media'],
     };
   }
 }

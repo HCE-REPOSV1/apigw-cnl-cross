@@ -1,4 +1,4 @@
-# Dockerfile — gw-pruebas-ag (API Gateway)
+# Dockerfile — apigw-cnl-cross(API apigateway)
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
@@ -15,7 +15,7 @@ RUN npm ci --only=production
 COPY --from=builder /app/dist ./dist
 COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x entrypoint.sh
-EXPOSE 10401 20401
+EXPOSE 10601 20601
 USER nestjs
-HEALTHCHECK --interval=30s --timeout=5s CMD wget -qO- http://localhost:10401/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s CMD wget -qO- http://localhost:${PORT:-10601}/health || exit 1
 CMD ["sh", "entrypoint.sh"]
