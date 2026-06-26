@@ -32,6 +32,12 @@ export class GatewayController {
     return this.gatewayService.proxyRequest(req, res, 'catalogs');
   }
 
+  @All('organization{/*path}')
+  @UseGuards(JwtAuthGuard)
+  async proxyOrganization(@Req() req: Request, @Res() res: Response) {
+    return this.gatewayService.proxyRequest(req, res, 'organization');
+  }
+
   @All('media{/*path}')
   @UseGuards(JwtAuthGuard)
   async proxyMedia(@Req() req: Request, @Res() res: Response) {
