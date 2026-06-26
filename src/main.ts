@@ -1,4 +1,4 @@
-import { NestFactory }    from '@nestjs/core';
+﻿import { NestFactory }    from '@nestjs/core';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { AppModule }      from './app.module';
 import { json, urlencoded } from 'express';
@@ -7,6 +7,7 @@ import * as https  from 'https';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { buildHttpsOptions } from './ssl/ssl-config.util';
+import { GlobalExceptionFilter } from './filters/global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { logger: ['log', 'warn', 'error'] });
@@ -16,6 +17,7 @@ async function bootstrap() {
   app.use(json({ limit: '10mb' }));
   app.use(urlencoded({ extended: true, limit: '10mb' }));
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   // api/v{n}/<servicio>/... — cada ruta de negocio versiona independiente del MS downstream.
   // health y '/' quedan fuera del prefijo/versión para no romper los healthcheck de Docker.
