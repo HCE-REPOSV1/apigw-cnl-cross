@@ -78,6 +78,36 @@ function logPfxInfo(pfxPath: string, passphrase?: string): void {
   }
 }
 
+// ─── Agente HTTPS de salida para llamadas a otros MS con certificado autofirmado ──
+// Los MS internos comparten el mismo certificado de desarrollo (certs-dev/dev.crt).
+// En vez de deshabilitar la verificación TLS (rejectUnauthorized: false), se agrega
+// ese certificado a la lista de CAs de confianza: sigue validando la cadena, solo
+// que ahora reconoce este certificado autofirmado como válido.
+//
+// INTERNAL_CA_PATH (separado de CERT_PATH): cuando este gateway se expone
+// públicamente, CERT_PATH pasa a apuntar a un certificado real (CA reconocida)
+// para el servidor HTTPS propio — pero los MS internos (ej. ms-cnl-cross-auth-profile)
+// siguen usando el certificado autofirmado de desarrollo. Si este agente reusara
+// CERT_PATH, confiaría en el cert real como CA en vez del autofirmado interno, y
+// las llamadas salientes a esos MS fallarían con "self-signed certificate" (el
+// bug que motivó este comentario — confirmado en el servidor de pruebas: con
+// CERT_PATH apuntando al cert real, la llamada a AUTH_URL fallaba; apuntando al
+// mismo autofirmado que usa auth-profile, pasaba sin error).
+// Fallback a CERT_PATH si INTERNAL_CA_PATH no está seteado, para no romper
+// entornos donde todavía no se separaron los dos certificados (ej. dev local).
+export function buildOutboundHttpsAgent(): https.Agent | undefined {
+  const certsPath = process.env.INTERNAL_CA_PATH || process.env.CERT_PATH || '/app/certs';
+  const certInfo = detectCertFormat(certsPath);
+  if (!certInfo || certInfo.type !== 'pem') return undefined;
+
+  try {
+    const devCert = fs.readFileSync(certInfo.cert!);
+    return new https.Agent({ ca: [...tls.rootCertificates.map(c => Buffer.from(c)), devCert] });
+  } catch {
+    return undefined;
+  }
+}
+
 export function buildHttpsOptions(): https.ServerOptions | null {
   if (process.env.USE_SSL !== 'true') return null;
 

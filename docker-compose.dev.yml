@@ -1,20 +1,34 @@
-# docker-compose.dev.yml — ag-pruebas-ag (desarrollo local con Docker)
+# docker-compose.dev.yml — apigw-cnl-cross (desarrollo local con Docker)
 # Uso: docker compose -f docker-compose.dev.yml up -d
 #
 # Lee las variables directamente del .env local.
 # Para desarrollo sin Docker usa: npm run start:dev
 
 services:
-  ag-pruebas-ag:
+  apigw-cnl-cross:
     build: .
     ports:
-      - "${PORT:-10401}:${PORT:-10401}"
-      - "${SSL_PORT:-20401}:${SSL_PORT:-20401}"
+      - "${PORT:-10601}:${PORT:-10601}"
+      - "${SSL_PORT:-20601}:${SSL_PORT:-20601}"
     env_file: .env
     environment:
       NODE_ENV: development
     volumes:
-      - ${CERT_PATH:-/proyectos/certs}:${CERT_PATH:-/proyectos/certs}:ro
+      # Certificado propio del gateway (server). Cuando se expone públicamente,
+      # CERTS_HOST_PATH apunta a un cert real (CA reconocida) en vez del autofirmado.
+      - ${CERTS_HOST_PATH:-../certs-dev}:/app/certs:ro
+      # CA de confianza para llamadas salientes a MS internos autofirmados
+      # (ver comentario en buildOutboundHttpsAgent, ssl-config.util.ts). Por
+      # defecto usa el mismo certs-dev compartido; en un entorno donde el
+      # gateway ya expone un cert real, INTERNAL_CERTS_HOST_PATH debe seguir
+      # apuntando al autofirmado que usan los MS internos (ej. ../certs-dev
+      # o donde viva ese certificado compartido en el servidor).
+      - ${INTERNAL_CERTS_HOST_PATH:-../certs-dev}:/app/certs-internal:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
+
+networks:
+  default:
+    name: hce-dev
+    external: true

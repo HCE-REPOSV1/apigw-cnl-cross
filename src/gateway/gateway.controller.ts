@@ -14,25 +14,31 @@ export class GatewayController {
   ) {}
 
   // Rutas públicas — sin JwtAuthGuard
-  @All('auth/*')
+  @All('auth{/*path}')
   async proxyAuth(@Req() req: Request, @Res() res: Response) {
     return this.gatewayService.proxyRequest(req, res, 'auth');
   }
 
   // Rutas protegidas — MS Canal cross-cutting (ms-cnl-cross-*)
-  @All('audit/*')
+  @All('audit{/*path}')
   @UseGuards(JwtAuthGuard)
   async proxyAudit(@Req() req: Request, @Res() res: Response) {
     return this.gatewayService.proxyRequest(req, res, 'audit');
   }
 
-  @All('catalogs/*')
+  @All('catalogs{/*path}')
   @UseGuards(JwtAuthGuard)
   async proxyCatalogs(@Req() req: Request, @Res() res: Response) {
     return this.gatewayService.proxyRequest(req, res, 'catalogs');
   }
 
-  @All('media/*')
+  @All('organization{/*path}')
+  @UseGuards(JwtAuthGuard)
+  async proxyOrganization(@Req() req: Request, @Res() res: Response) {
+    return this.gatewayService.proxyRequest(req, res, 'organization');
+  }
+
+  @All('media{/*path}')
   @UseGuards(JwtAuthGuard)
   async proxyMedia(@Req() req: Request, @Res() res: Response) {
     return this.gatewayService.proxyBinaryRequest(req, res, 'media');

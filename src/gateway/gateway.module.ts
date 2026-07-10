@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GatewayController } from './gateway.controller';
 import { GatewayService } from './gateway.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { buildOutboundHttpsAgent } from '../ssl/ssl-config.util';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
       imports: [ConfigModule],
       useFactory: (cfg: ConfigService) => ({
         timeout: Number(cfg.get('REQUEST_TIMEOUT', '120000')),
+        httpsAgent: buildOutboundHttpsAgent(),
       }),
       inject: [ConfigService],
     }),
