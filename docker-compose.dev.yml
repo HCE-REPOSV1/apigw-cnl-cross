@@ -14,8 +14,16 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ${CERT_PATH:-/proyectos/certs}:${CERT_PATH:-/proyectos/certs}:ro
+      # Certificado propio del gateway (server). Cuando se expone públicamente,
+      # CERTS_HOST_PATH apunta a un cert real (CA reconocida) en vez del autofirmado.
       - ${CERTS_HOST_PATH:-../certs-dev}:/app/certs:ro
+      # CA de confianza para llamadas salientes a MS internos autofirmados
+      # (ver comentario en buildOutboundHttpsAgent, ssl-config.util.ts). Por
+      # defecto usa el mismo certs-dev compartido; en un entorno donde el
+      # gateway ya expone un cert real, INTERNAL_CERTS_HOST_PATH debe seguir
+      # apuntando al autofirmado que usan los MS internos (ej. ../certs-dev
+      # o donde viva ese certificado compartido en el servidor).
+      - ${INTERNAL_CERTS_HOST_PATH:-../certs-dev}:/app/certs-internal:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
