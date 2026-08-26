@@ -19,6 +19,22 @@ export class GatewayController {
     return this.gatewayService.proxyRequest(req, res, 'auth');
   }
 
+  // i18n público — SOLO manifest de idiomas y namespaces common/auth (mf-shell
+  // en su boot y mf-auth en login corren ANTES de que exista sesión). El
+  // allow-list de namespaces (common/auth) lo valida I18nController del lado
+  // de ms-cnl-cross-catalogs, no este gateway. Deben ir ANTES del catch-all
+  // protegido `i18n{/*path}` de más abajo — mismo orden de rutas de Express,
+  // si no el catch-all las capturaría primero y exigiría token de más.
+  @All('i18n/locales')
+  async proxyI18nLocales(@Req() req: Request, @Res() res: Response) {
+    return this.gatewayService.proxyRequest(req, res, 'i18n');
+  }
+
+  @All('i18n/public{/*path}')
+  async proxyI18nPublic(@Req() req: Request, @Res() res: Response) {
+    return this.gatewayService.proxyRequest(req, res, 'i18n');
+  }
+
   // Rutas protegidas — MS Canal cross-cutting (ms-cnl-cross-*)
   @All('audit{/*path}')
   @UseGuards(JwtAuthGuard)
@@ -30,6 +46,12 @@ export class GatewayController {
   @UseGuards(JwtAuthGuard)
   async proxyCatalogs(@Req() req: Request, @Res() res: Response) {
     return this.gatewayService.proxyRequest(req, res, 'catalogs');
+  }
+
+  @All('i18n{/*path}')
+  @UseGuards(JwtAuthGuard)
+  async proxyI18n(@Req() req: Request, @Res() res: Response) {
+    return this.gatewayService.proxyRequest(req, res, 'i18n');
   }
 
   @All('organization{/*path}')
@@ -61,7 +83,7 @@ export class GatewayController {
       service:   'gw-pruebas-ag',
       type:      'API Gateway',
       timestamp: new Date().toISOString(),
-      routes:    ['/api/v1/auth', '/api/v1/audit', '/api/v1/catalogs', '/api/v1/media'],
+      routes:    ['/api/v1/auth', '/api/v1/audit', '/api/v1/catalogs', '/api/v1/i18n', '/api/v1/media'],
     };
   }
 }

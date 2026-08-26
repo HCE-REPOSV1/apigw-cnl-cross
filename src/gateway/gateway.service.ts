@@ -17,6 +17,7 @@ export class GatewayService {
       '/audit':        this.cfg.get('CNL_AUDIT_URL',     'http://localhost:10703'),
       '/catalogs':     this.cfg.get('CNL_CATALOGS_URL',  'http://localhost:10704'),
       '/organization': this.cfg.get('CNL_CATALOGS_URL',  'http://localhost:10704'),
+      '/i18n':         this.cfg.get('CNL_CATALOGS_URL',  'http://localhost:10704'),
       '/media':        this.cfg.get('CNL_MEDIA_URL',     'http://localhost:10702'),
     };
   }
