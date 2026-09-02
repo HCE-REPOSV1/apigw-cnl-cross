@@ -68,7 +68,13 @@ export class GatewayController {
 
   @Version(VERSION_NEUTRAL)
   @Get('health')
-  async health() {
+  health() {
+    return { status: 'UP', timestamp: new Date().toISOString() };
+  }
+
+  @Version(VERSION_NEUTRAL)
+  @Get('health/deep')
+  async healthDeep() {
     return this.gatewayService.healthCheck();
   }
 

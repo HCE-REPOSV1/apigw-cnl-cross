@@ -21,7 +21,7 @@ async function bootstrap() {
 
   // api/v{n}/<servicio>/... — cada ruta de negocio versiona independiente del MS downstream.
   // health y '/' quedan fuera del prefijo/versión para no romper los healthcheck de Docker.
-  app.setGlobalPrefix('api', { exclude: ['health', '/'] });
+  app.setGlobalPrefix('api', { exclude: ['health', 'health/deep', '/'] });
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1', prefix: 'v' });
 
   const origins = process.env.ALLOWED_ORIGINS;
